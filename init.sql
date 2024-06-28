@@ -73,8 +73,8 @@ CREATE TABLE IF NOT EXISTS IngredientSearch (
   FOREIGN KEY (ingredient_id) REFERENCES Ingredient(ingredient_id)
 );
 
--- 2-8. Filter 테이블 생성
-CREATE TABLE IF NOT EXISTS Filter (
+-- 2-8. SearchFilter 테이블 생성
+CREATE TABLE IF NOT EXISTS SearchFilter (
   user_id VARCHAR(255),
   ingredient_id INT,
   PRIMARY KEY (user_id, ingredient_id),
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS Seasonal (
   seasonal_id INT AUTO_INCREMENT,
   seasonal_name VARCHAR(255),
   seasonal_month INT,
-  seasonal_image_url VARCHAR(255),
+  seasonal_image VARCHAR(255),
   PRIMARY KEY (seasonal_id)
 );
 
@@ -122,6 +122,3 @@ CREATE TABLE IF NOT EXISTS Subscription (
   PRIMARY KEY (user_id),
   FOREIGN KEY (user_id) REFERENCES User(user_id)  
 );
-
--- 초기 데이터 삽입
--- INSERT INTO my_table (name) VALUES ('Sample Data 1'), ('Sample Data 2');
