@@ -9,7 +9,7 @@ CREATE USER IF NOT EXISTS 'test'@'%' IDENTIFIED BY 'test1234';
 GRANT ALL PRIVILEGES ON `mlr-dev-db-tlb`.* TO 'test'@'%';
 FLUSH PRIVILEGES;
 
--- docker build -t 192.168.56.200/mylittlerecipebook/mlr-dev-db-msq-img:1    --build-arg MYSQL_ROOT_PASSWORD=test1234   --build-arg MYSQL_DATABASE=mlr-dev-db   --build-arg MYSQL_USER=test   --build-arg MYSQL_PASSWORD=test1234 .
+-- docker build -t 192.168.56.200/mylittlerecipebook/mlr-dev-db-msq-img:1    --build-arg MYSQL_ROOT_PASSWORD=test1234   --build-arg MYSQL_DATABASE=mlr-dev-db-tlb   --build-arg MYSQL_USER=test   --build-arg MYSQL_PASSWORD=test1234 .
 
 -- 2-1. User 테이블 생성
 CREATE TABLE IF NOT EXISTS User (
