@@ -1,5 +1,5 @@
 # MySQL 공식 이미지 사용
-FROM mysql:lts
+FROM mysql:8.0
 
 # # UTF-8 설정을 위한 파일 복사
 # COPY ./my.cnf /etc/mysql/conf.d/
