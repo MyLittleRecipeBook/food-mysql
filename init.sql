@@ -65,13 +65,9 @@ CREATE TABLE IF NOT EXISTS Ingredient (
 -- 2-7. Ingredient Search 테이블 생성
 CREATE TABLE IF NOT EXISTS IngredientSearch (
   recipe_id INT,
-  recipe_title VARCHAR(255),
-  recipe_thumbnail VARCHAR(255),
   ingredient_id INT,
   PRIMARY KEY (recipe_id, ingredient_id),
   FOREIGN KEY (recipe_id) REFERENCES Recipe(recipe_id),
-  FOREIGN KEY (recipe_title) REFERENCES Recipe(recipe_title),
-  FOREIGN KEY (recipe_thumbnail) REFERENCES Recipe(recipe_thumbnail),
   FOREIGN KEY (ingredient_id) REFERENCES Ingredient(ingredient_id)
 );
 
