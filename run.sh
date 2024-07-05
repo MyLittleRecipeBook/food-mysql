@@ -14,3 +14,4 @@ python init_seasonal.py
 
 python init_recipe.py
 
+python init_ingredient.py
