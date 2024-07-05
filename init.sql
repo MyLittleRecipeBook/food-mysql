@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS Seasonal (
 CREATE TABLE IF NOT EXISTS Subscription (
   user_id VARCHAR(255),
   user_email VARCHAR(255),
+  user_nickname VARCHAR(255),
   cate_no INT,
   situ_no INT,
   PRIMARY KEY (user_id),
