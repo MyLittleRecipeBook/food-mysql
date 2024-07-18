@@ -5,8 +5,8 @@ CREATE DATABASE IF NOT EXISTS `mlr-dev-db-tlb`;
 USE `mlr-dev-db-tlb`;
 
 -- 사용자 생성 및 권한 부여
-CREATE USER IF NOT EXISTS 'test'@'%' IDENTIFIED BY 'test1234';
-GRANT ALL PRIVILEGES ON `mlr-dev-db-tlb`.* TO 'test'@'%';
+CREATE USER IF NOT EXISTS 'nyam'@'%' IDENTIFIED BY 'k8spass#';
+GRANT ALL PRIVILEGES ON `mlr-prd-db-tlb`.* TO 'nyam'@'%';
 FLUSH PRIVILEGES;
 
 -- 2-1. User 테이블 생성
