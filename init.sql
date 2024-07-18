@@ -19,9 +19,12 @@ CREATE TABLE IF NOT EXISTS User (
 
 -- 2-2. Session 테이블 생성
 CREATE TABLE IF NOT EXISTS Session(
-  user_id VARCHAR(255) ,
-  access_token VARCHAR(255) ,
-  PRIMARY KEY (user_id),
+  session_id INT NOT NULL AUTO_INCREMENT,
+  user_id VARCHAR(255) NOT NULL,
+  access_token VARCHAR(255),
+  user_agent VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (session_id),
   FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 

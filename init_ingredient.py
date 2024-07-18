@@ -2,15 +2,12 @@ import pandas as pd
 import mysql.connector
 from mysql.connector import Error
 import ast
+from collections import defaultdict
 
 def connect_to_database(host, database, user, password):
-    """ Connect to MySQL database """
     try:
         connection = mysql.connector.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password
+            host=host, database=database, user=user, password=password
         )
         if connection.is_connected():
             print("Successfully connected to the database")
@@ -19,45 +16,30 @@ def connect_to_database(host, database, user, password):
         print("Error while connecting to MySQL", e)
         return None
 
-def get_ingredient_id(connection, ingredient_name):
-    """ Get the ingredient_id from the Ingredient table """
+def batch_insert_ingredients(connection, ingredients):
     cursor = connection.cursor()
-    query = "SELECT ingredient_id FROM Ingredient WHERE ingredient_name = %s"
-    cursor.execute(query, (ingredient_name,))
-    result = cursor.fetchone()
-    cursor.close()
-    return result[0] if result else None
-
-def insert_ingredient(connection, ingredient_name):
-    """ Insert a new ingredient into the Ingredient table """
-    cursor = connection.cursor()
-    query = "INSERT INTO Ingredient (ingredient_name) VALUES (%s)"
-    cursor.execute(query, (ingredient_name,))
+    query = "INSERT IGNORE INTO Ingredient (ingredient_name) VALUES (%s)"
+    cursor.executemany(query, [(ingredient,) for ingredient in ingredients])
     connection.commit()
-    ingredient_id = cursor.lastrowid
     cursor.close()
-    return ingredient_id
 
-def ingredient_search_exists(connection, recipe_id, ingredient_id):
-    """ Check if the combination of recipe_id and ingredient_id exists in IngredientSearch """
+def get_ingredient_ids(connection, ingredients):
     cursor = connection.cursor()
-    query = "SELECT 1 FROM IngredientSearch WHERE recipe_id = %s AND ingredient_id = %s"
-    cursor.execute(query, (recipe_id, ingredient_id))
-    result = cursor.fetchone()
+    placeholders = ', '.join(['%s'] * len(ingredients))
+    query = f"SELECT ingredient_name, ingredient_id FROM Ingredient WHERE ingredient_name IN ({placeholders})"
+    cursor.execute(query, tuple(ingredients))
+    result = cursor.fetchall()
     cursor.close()
-    return result is not None
+    return {name: id for name, id in result}
 
-def insert_ingredient_search(connection, recipe_id, ingredient_id):
-    """ Insert a record into the IngredientSearch table """
+def batch_insert_ingredient_search(connection, ingredient_search_data):
     cursor = connection.cursor()
-    if not ingredient_search_exists(connection, recipe_id, ingredient_id):
-        query = "INSERT INTO IngredientSearch (recipe_id, ingredient_id) VALUES (%s, %s)"
-        cursor.execute(query, (recipe_id, ingredient_id))
-        connection.commit()
+    query = "INSERT IGNORE INTO IngredientSearch (recipe_id, ingredient_id) VALUES (%s, %s)"
+    cursor.executemany(query, ingredient_search_data)
+    connection.commit()
     cursor.close()
 
 if __name__ == '__main__':
-    # Replace the placeholders with your MySQL server details
     host = '127.0.0.1'
     database = 'mlr-dev-db-tlb'
     user = 'test'
@@ -67,17 +49,36 @@ if __name__ == '__main__':
     connection = connect_to_database(host, database, user, password)
     if connection:
         df = pd.read_csv(csv_file_path)
-        df['recipe_ingredient'] = df['recipe_ingredient'].map(lambda x : ast.literal_eval(x))
-        for index, row in df.iterrows():
+        df['recipe_ingredient'] = df['recipe_ingredient'].apply(ast.literal_eval)
+
+        # Collect all unique ingredients
+        all_ingredients = set()
+        recipe_ingredients = defaultdict(list)
+        for _, row in df.iterrows():
             recipe_id = row['recipe_id']
-            print("recipe", recipe_id)
             ingredients = row['recipe_ingredient']
-            
-            for ingredient in ingredients:
-                ingredient_id = get_ingredient_id(connection, ingredient)
-                if not ingredient_id:
-                    ingredient_id = insert_ingredient(connection, ingredient)
-                insert_ingredient_search(connection, recipe_id, ingredient_id)
-        
+            all_ingredients.update(ingredients)
+            recipe_ingredients[recipe_id].extend(ingredients)
+
+        # Insert all ingredients in batch
+        batch_insert_ingredients(connection, all_ingredients)
+
+        # Get all ingredient IDs in one query
+        ingredient_id_map = get_ingredient_ids(connection, all_ingredients)
+
+        # Prepare data for IngredientSearch table
+        ingredient_search_data = [
+            (recipe_id, ingredient_id_map[ingredient])
+            for recipe_id, ingredients in recipe_ingredients.items()
+            for ingredient in ingredients
+        ]
+
+        # Insert all IngredientSearch records in batch
+        batch_insert_ingredient_search(connection, ingredient_search_data)
+
         connection.close()
         print("MySQL connection is closed")
+
+
+
+
