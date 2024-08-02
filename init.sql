@@ -1,8 +1,8 @@
 -- 0. 데이터베이스 생성
-CREATE DATABASE IF NOT EXISTS `mlr-dev-db-tlb`;
+CREATE DATABASE IF NOT EXISTS `mlr-prd-db-tlb`;
 
 -- 1. 데이터베이스 사용
-USE `mlr-dev-db-tlb`;
+USE `mlr-prd-db-tlb`;
 
 -- 사용자 생성 및 권한 부여
 CREATE USER IF NOT EXISTS 'nyam'@'%' IDENTIFIED BY 'k8spass#';
